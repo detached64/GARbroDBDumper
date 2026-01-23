@@ -1,0 +1,39 @@
+name: GARbro Scheme Dump
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore
+        run: nuget restore
+
+      - name: Build
+        run: msbuild /p:Configuration=Release /p:Platform="Any CPU" /p:TargetFrameworkVersion=v4.6.2 GARbro.sln
+
+      - name: Run Dumper
+        working-directory: ./bin/Release
+        run: ./SchemeDumper.exe
+
+      - name: Upload Artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARbro-Schemes
+          path: ./bin/Release/GameData/Formats.json
