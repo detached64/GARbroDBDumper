@@ -1,4 +1,4 @@
-name: .NET Framework Build
+name: GARbro Scheme Dump
 
 on:
   push:
@@ -25,9 +25,13 @@ jobs:
       - name: Build
         run: msbuild /p:Configuration=Release /p:Platform="Any CPU" GARbro.sln
 
-      - name: Publish Artifact
+      - name: Run Dumper
+        working-directory: ./bin/Release
+        run: ./SchemeDumper.exe
+
+      - name: Upload Artifact
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: GARbro-Mod-ci-build
-          path: bin/Release
+          name: GARbro-Schemes
+          path: ./bin/Release/GameData/Formats.json
